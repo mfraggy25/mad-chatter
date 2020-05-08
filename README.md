@@ -12,9 +12,9 @@
  * Option to store data offline
 
 ## Dependencies
- * expo,
- * react,
- * react-dom,
+ * expo
+ * react
+ * react-dom
  * react-native
  
 ### Technical Requirements

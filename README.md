@@ -1,6 +1,6 @@
 # Mad Chatter
 
-## Summary:
+## Summary
  * A chat application using _React Native_ and [Gifted Chat](https://github.com/FaridSafi/react-native-gifted-chat). 
  * Using [Expo-cli](https://expo.io/)   to set up the project. 
  * Testing with _Android_ emulators and _iOS_ simulators to see how the app looks and behaves in different environments.

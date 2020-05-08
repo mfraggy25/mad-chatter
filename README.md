@@ -44,4 +44,4 @@
  
  ### Kanban board
 
-[ChatMeApp-Kanban-board](https://trello.com/b/kjj0NXF6/native-react-chat-application)
+[Mad Chatter-Kanban-board](https://trello.com/b/kjj0NXF6/mad-chatter)

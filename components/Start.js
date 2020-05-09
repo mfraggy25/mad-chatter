@@ -98,18 +98,6 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     marginTop: 50,
   },
-  color1: {
-    backgroundColor: "#090C08",
-  },
-  color2: {
-    backgroundColor: "#474056",
-  },
-  color3: {
-    backgroundColor: "#8A95A5",
-  },
-  color4: {
-    backgroundColor: "#B9C6AE",
-  },
   text: {
     fontSize: 16,
     fontWeight: "300",
@@ -123,6 +111,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#FFFFFF",
   },
+  /*========Background Color Options========*/
   colorButton: {
     height: 50,
     width: 50,
@@ -135,5 +124,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     margin: 15,
+  },
+  color1: {
+    backgroundColor: "#090C08",
+  },
+  color2: {
+    backgroundColor: "#474056",
+  },
+  color3: {
+    backgroundColor: "#8A95A5",
+  },
+  color4: {
+    backgroundColor: "#B9C6AE",
   },
 });

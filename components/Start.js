@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import KeyboardSpacer from "react-native-keyboard-spacer";
 import {
   StyleSheet,
   Text,
@@ -20,7 +21,7 @@ export default class Start extends React.Component {
         source={require("../assets/BackgroundImage.png")}
         style={styles.backgroundImage}
       >
-        <Text style={styles.title}>Mad Chatter</Text>
+        <Text style={styles.appTitle}>Mad Chatter</Text>
         <View style={styles.container}>
           <TextInput
             style={styles.nameBox}
@@ -67,11 +68,12 @@ export default class Start extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    height: "44%",
     width: "88%",
+    fontSize: 16,
+    height: "44%",
+    color: "#000",
     marginBottom: 20,
+    alignItems: "center",
   },
   backgroundImage: {
     flex: 1,
@@ -82,12 +84,14 @@ const styles = StyleSheet.create({
   nameBox: {
     fontSize: 22,
     fontWeight: "800",
-    borderWidth: 2,
+    borderWidth: 4,
     color: "#000000",
     borderColor: "#757083",
     width: "88%",
     marginBottom: 20,
     marginTop: 30,
+    textAlign: "center",
+    backgroundColor: "white",
   },
   button: {
     fontSize: 16,
@@ -98,6 +102,14 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     marginTop: 50,
   },
+  appTitle: {
+    flex: 1,
+    fontSize: 45,
+    marginTop: 60,
+    color: "#FFFFFF",
+    fontWeight: "600",
+    textAlign: "center",
+  },
   text: {
     fontSize: 16,
     fontWeight: "300",
@@ -107,9 +119,10 @@ const styles = StyleSheet.create({
   },
   title: {
     alignItems: "center",
-    fontSize: 45,
+    fontSize: 20,
     fontWeight: "600",
     color: "#FFFFFF",
+    textAlign: "center",
   },
   /*========Background Color Options========*/
   colorButton: {

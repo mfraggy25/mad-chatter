@@ -14,7 +14,7 @@ const navigator = createStackNavigator({
     screen: Start,
     navigationOptions: {
       //hide navigation bar on Start screen
-      header: null,
+      headerShown: false,
     },
   },
   Chat: { screen: Chat },

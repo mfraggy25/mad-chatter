@@ -11,19 +11,16 @@ import {
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 
-export default class Chat extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  state = {
-    messages: [],
-  };
-
-  //Set navigation title as username instead of "Chat"
+export default class Chat extends Component {
+  //pulling in information from Start.js name/color
   static navigationOptions = ({ navigation }) => {
     return {
-      title: navigation.state.params.name,
+      name: navigation.state.params.name,
+      color: navigation.state.params.color,
     };
+  };
+  state = {
+    messages: [],
   };
 
   // Change bubble color
@@ -44,7 +41,7 @@ export default class Chat extends React.Component {
         {...props}
         wrapperStyle={{
           left: {
-            backgroundColor: "#e67e22",
+            backgroundColor: "#8e44ad",
           },
           right: {
             backgroundColor: "#2ecc71",
@@ -98,6 +95,7 @@ export default class Chat extends React.Component {
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
+          renderBubble={this.renderBubble.bind(this)}
           user={{
             _id: 1,
           }}

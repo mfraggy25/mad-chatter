@@ -6,8 +6,9 @@ import {
   Button,
   TextInput,
   ImageBackground,
+  Platform,
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 
 export default class Chat extends React.Component {
@@ -27,15 +28,26 @@ export default class Chat extends React.Component {
 
   // Change bubble color
   renderBubble(props) {
+    {
+      /* Colour options
+      '#e67e22', // carrot
+      '#2ecc71', // emerald
+      '#3498db', // peter river
+      '#8e44ad', // wisteria
+      '#e74c3c', // alizarin
+      '#1abc9c', // turquoise
+      '#2c3e50', // midnight blue
+       https://coolors.co/ */
+    }
     return (
       <Bubble
         {...props}
         wrapperStyle={{
           left: {
-            backgroundColor: "white",
+            backgroundColor: "#e67e22",
           },
           right: {
-            backgroundColor: "#ECEFF1",
+            backgroundColor: "#2ecc71",
           },
         }}
       />
@@ -76,11 +88,13 @@ export default class Chat extends React.Component {
   render() {
     return (
       <View
-        style={[
-          styles.container,
-          { backgroundColor: this.props.navigation.state.params.color },
-        ]}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          backgroundColor: this.props.navigation.state.params.color,
+        }}
       >
+        <Text> Hello {this.props.navigation.state.params.name}</Text>
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
@@ -88,6 +102,7 @@ export default class Chat extends React.Component {
             _id: 1,
           }}
         />
+        {/* Keyboard spacer for android only. */}
         {Platform.OS === "android" ? <KeyboardSpacer /> : null}
       </View>
     );

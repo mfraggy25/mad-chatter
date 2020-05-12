@@ -11,19 +11,39 @@ import {
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 
+const firebase = require("firebase");
+require("firebase/firestore");
+
 export default class Chat extends Component {
   //pulling in information from Start.js name/color
   static navigationOptions = ({ navigation }) => {
     return {
       name: navigation.state.params.name,
-      color: navigation.state.params.color,
     };
   };
-  state = {
-    messages: [],
-  };
 
-  // Change bubble color
+  constructor(props) {
+    super(props);
+
+    firebase.initializeApp({
+      apiKey: "AIzaSyD6tm7bDF1j9p19O30iBPC0pnzFz2jZj5g",
+      authDomain: "mad-chatter-dc59a.firebaseapp.com",
+      databaseURL: "https://mad-chatter-dc59a.firebaseio.com",
+      projectId: "mad-chatter-dc59a",
+      storageBucket: "mad-chatter-dc59a.appspot.com",
+      messagingSenderId: "528994626501",
+      appId: "1:528994626501:web:7f91a2b905515885bb39ac",
+      measurementId: "G-L98KW3DB2N",
+    });
+    this.referenceMessageUser = null;
+    this.referenceMessages = firebase.firestore().collection("messages");
+    this.state = {
+      messages: [],
+      uid: 0,
+    };
+  }
+
+  // Change bubble colour
   renderBubble(props) {
     {
       /* Colour options
@@ -51,35 +71,67 @@ export default class Chat extends Component {
     );
   }
 
-  // Set state with a static message
-  componentDidMount() {
+  onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    //go through each document
+    querySnapshot.forEach((doc) => {
+      var data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        user: this.state.uid,
+        // messages: data.message,
+      });
+    });
     this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: "Hello there!",
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: "React Native",
-            avatar: "https://placeimg.com/140/140/any",
-          },
-        },
-        {
-          _id: 2,
-          text: "This is a system message",
-          createdAt: new Date(),
-          system: true,
-        },
-      ],
+      messages,
+    });
+  };
+
+  //adding messages to the database and setting the state of user id
+  componentDidMount() {
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      //update user state with currently active user data
+      this.setState({
+        uid: user.uid,
+        loggedInText: "Welcome to Mad Chatter",
+      });
+      this.referenceMessageUser = firebase.firestore().collection("messages");
+
+      this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(
+        this.onCollectionUpdate
+      );
+    });
+  }
+
+  //unmounting
+  componentWillUnmount() {
+    this.unsubscribe();
+    this.unsubscribeMessageUser();
+  }
+
+  //Adding messages to the database
+  addMessage() {
+    const message = this.state.messages[0];
+    this.referenceMessages.add({
+      _id: message._id,
+      text: message.text,
+      createdAt: message.createdAt,
+      user: message.user,
     });
   }
 
   // Send message function
   onSend(messages = []) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
+    this.setState(
+      (previousState) => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }),
+      () => this.addMessage()
+    );
   }
 
   render() {
@@ -95,10 +147,7 @@ export default class Chat extends Component {
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
-          renderBubble={this.renderBubble.bind(this)}
-          user={{
-            _id: 1,
-          }}
+          user={this.state.uid}
         />
         {/* Keyboard spacer for android only. */}
         {Platform.OS === "android" ? <KeyboardSpacer /> : null}

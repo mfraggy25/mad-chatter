@@ -71,6 +71,14 @@ export default class Chat extends Component {
     );
   }
 
+  get user() {
+    return {
+      name: this.props.navigation.state.params.name,
+      _id: this.state.uid,
+      id: this.state.uid,
+    };
+  }
+
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
     //go through each document
@@ -79,7 +87,8 @@ export default class Chat extends Component {
       messages.push({
         _id: data._id,
         text: data.text,
-        user: this.state.uid,
+        createdAt: data.createdAt.toDate(),
+        user: data.user,
         // messages: data.message,
       });
     });
@@ -105,6 +114,22 @@ export default class Chat extends Component {
         this.onCollectionUpdate
       );
     });
+    this.setState({
+      messages: [
+        {
+          _id: 2,
+          text:
+            this.props.navigation.state.params.name + " has joined the chat",
+          createdAt: new Date(),
+          user: {
+            _id: 2,
+            name: "React Native",
+            avatar: "https://facebook.github.io/react/img/logo_og.png",
+          },
+          system: true,
+        },
+      ],
+    });
   }
 
   //unmounting
@@ -117,10 +142,11 @@ export default class Chat extends Component {
   addMessage() {
     const message = this.state.messages[0];
     this.referenceMessages.add({
-      _id: message._id,
-      text: message.text,
-      createdAt: message.createdAt,
-      user: message.user,
+      _id: this.state.messages[0]._id,
+      text: this.state.messages[0].text || "",
+      createdAt: this.state.messages[0].createdAt,
+      user: this.state.messages[0].user,
+      uid: this.state.uid,
     });
   }
 
@@ -147,7 +173,7 @@ export default class Chat extends Component {
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
-          user={this.state.uid}
+          user={this.state.user}
         />
         {/* Keyboard spacer for android only. */}
         {Platform.OS === "android" ? <KeyboardSpacer /> : null}

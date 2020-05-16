@@ -39,6 +39,11 @@ export default class Chat extends Component {
     this.referenceMessages = firebase.firestore().collection("messages");
     this.state = {
       messages: [],
+      user: {
+        _id: "",
+        name: "",
+        avatar: "",
+      },
       uid: 0,
     };
   }
@@ -70,6 +75,17 @@ export default class Chat extends Component {
       />
     );
   }
+
+  // Set user ID, name and avatar
+  setUser = (_id, name = "anonymous") => {
+    this.setState({
+      user: {
+        _id: _id,
+        name: name,
+        avatar: "https://placeimg.com/140/140/any",
+      },
+    });
+  };
 
   get user() {
     return {
@@ -108,6 +124,11 @@ export default class Chat extends Component {
         uid: user.uid,
         loggedInText: "Welcome to Mad Chatter",
       });
+      if (user.uid) {
+        // Do something
+        console.log(user.uid);
+      }
+      // Will not result in an error
       this.referenceMessageUser = firebase.firestore().collection("messages");
 
       this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(
@@ -117,15 +138,20 @@ export default class Chat extends Component {
     this.setState({
       messages: [
         {
-          _id: 2,
-          text:
-            this.props.navigation.state.params.name + " has joined the chat",
+          _id: 1,
+          text: "Hello developer",
           createdAt: new Date(),
           user: {
             _id: 2,
             name: "React Native",
-            avatar: "https://facebook.github.io/react/img/logo_og.png",
+            avatar: "https://placeimg.com/140/140/any",
           },
+        },
+        {
+          _id: 2,
+          text:
+            this.props.navigation.state.params.name + " has entered the chat",
+          createdAt: new Date(),
           system: true,
         },
       ],
@@ -134,7 +160,7 @@ export default class Chat extends Component {
 
   //unmounting
   componentWillUnmount() {
-    this.unsubscribe();
+    this.authUnsubscribe();
     this.unsubscribeMessageUser();
   }
 
@@ -146,7 +172,6 @@ export default class Chat extends Component {
       text: this.state.messages[0].text || "",
       createdAt: this.state.messages[0].createdAt,
       user: this.state.messages[0].user,
-      uid: this.state.uid,
     });
   }
 
@@ -173,6 +198,7 @@ export default class Chat extends Component {
         <GiftedChat
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
+          renderBubble={this.renderBubble.bind(this)}
           user={this.state.user}
         />
         {/* Keyboard spacer for android only. */}

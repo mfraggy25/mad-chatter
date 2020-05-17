@@ -120,6 +120,10 @@ export default class Chat extends Component {
         firebase.auth().signInAnonymously();
       }
       //update user state with currently active user data
+      if (user) {
+        //do something
+        //now you are sure that tthere is a user in the if statement
+      }
       this.setState({
         uid: user.uid,
         loggedInText: "Welcome to Mad Chatter",

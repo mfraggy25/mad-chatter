@@ -115,24 +115,15 @@ export default class Chat extends Component {
 
   //adding messages to the database and setting the state of user id
   componentDidMount() {
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        firebase.auth().signInAnonymously();
+        await firebase.auth().signInAnonymously();
+      } else {
+        this.setState({
+          uid: user.uid,
+          loggedInText: "Welcome to Mad Chatter",
+        });
       }
-      //update user state with currently active user data
-      if (user) {
-        //do something
-        //now you are sure that tthere is a user in the if statement
-      }
-      this.setState({
-        uid: user.uid,
-        loggedInText: "Welcome to Mad Chatter",
-      });
-      if (user.uid) {
-        // Do something
-        console.log(user.uid);
-      }
-      // Will not result in an error
       this.referenceMessageUser = firebase.firestore().collection("messages");
 
       this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(
@@ -176,6 +167,7 @@ export default class Chat extends Component {
       text: this.state.messages[0].text || "",
       createdAt: this.state.messages[0].createdAt,
       user: this.state.messages[0].user,
+      uid: this.state.uid,
     });
   }
 

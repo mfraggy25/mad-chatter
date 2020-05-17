@@ -167,7 +167,6 @@ export default class Chat extends Component {
       text: this.state.messages[0].text || "",
       createdAt: this.state.messages[0].createdAt,
       user: this.state.messages[0].user,
-      uid: this.state.uid,
     });
   }
 
@@ -198,7 +197,7 @@ export default class Chat extends Component {
           user={this.state.user}
         />
         {/* Keyboard spacer for android only. */}
-        {Platform.OS === "android" ? <KeyboardSpacer /> : null}
+        {Platform.OS === "android" ? <KeyboardSpacer topSpacing={-50} /> : null}
       </View>
     );
   }

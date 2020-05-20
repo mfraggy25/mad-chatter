@@ -7,9 +7,11 @@ import {
   TextInput,
   ImageBackground,
   Platform,
+  AsyncStorage,
 } from "react-native";
-import { GiftedChat, Bubble } from "react-native-gifted-chat";
+import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
+import NetInfo from "@react-native-community/netinfo";
 
 const firebase = require("firebase");
 require("firebase/firestore");
@@ -25,40 +27,163 @@ export default class Chat extends Component {
   constructor(props) {
     super(props);
 
-    firebase.initializeApp({
-      apiKey: "AIzaSyD6tm7bDF1j9p19O30iBPC0pnzFz2jZj5g",
-      authDomain: "mad-chatter-dc59a.firebaseapp.com",
-      databaseURL: "https://mad-chatter-dc59a.firebaseio.com",
-      projectId: "mad-chatter-dc59a",
-      storageBucket: "mad-chatter-dc59a.appspot.com",
-      messagingSenderId: "528994626501",
-      appId: "1:528994626501:web:7f91a2b905515885bb39ac",
-      measurementId: "G-L98KW3DB2N",
-    });
-    this.referenceMessageUser = null;
-    this.referenceMessages = firebase.firestore().collection("messages");
     this.state = {
       messages: [],
+      uid: 0,
       user: {
         _id: "",
         name: "",
         avatar: "",
       },
-      uid: 0,
+      isConnected: false,
+    };
+
+    firebase.initializeApp({});
+    this.referenceMessages = firebase.firestore().collection("messages");
+  }
+
+  // Display elements
+  componentDidMount() {
+    NetInfo.fetch().then((state) => {
+      //console.log('Connection type', state.type);
+      if (state.isConnected) {
+        //console.log('Is connected?', state.isConnected);
+        this.authUnsubscribe = firebase
+          .auth()
+          .onAuthStateChanged(async (user) => {
+            if (!user) {
+              try {
+                await firebase.auth().signInAnonymously();
+              } catch (error) {
+                console.log("Cannot sign in: " + error.message);
+              }
+            }
+            this.setState({
+              isConnected: true,
+              user: {
+                _id: user.uid,
+                name: this.props.navigation.state.params.name,
+                avatar: "https://placeimg.com/140/140/any",
+              },
+              uid: user.uid,
+              loggedInText:
+                this.props.navigation.state.params.name +
+                " has entered the chat",
+              messages: [],
+            });
+            //console.log(user);
+            this.unsubscribe = this.referenceMessages
+              .orderBy("createdAt", "desc")
+              .onSnapshot(this.onCollectionUpdate);
+          });
+      } else {
+        this.setState({
+          isConnected: false,
+        });
+        this.getMessages();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    // Stop listening for authentication
+    this.authUnsubscribe();
+    // Stop listening for changes
+    this.unsubscribe();
+  }
+
+  onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    // Go through each document
+    querySnapshot.forEach((doc) => {
+      // Get queryDocumentSnapshot's data
+      var data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text || "",
+        createdAt: data.createdAt.toDate(),
+        user: data.user,
+      });
+    });
+    this.setState({
+      messages,
+    });
+  };
+
+  get user() {
+    return {
+      name: this.props.navigation.state.params.name,
+      _id: this.state.uid,
+      id: this.state.uid,
     };
   }
+
+  /*===============MESSAGE OPTIONS================*/
+
+  // Add message
+  addMessage() {
+    const message = this.state.messages[0];
+    this.referenceMessages.add({
+      _id: message._id,
+      text: message.text || "",
+      createdAt: message.createdAt,
+      user: this.state.user,
+    });
+  }
+
+  // Get messages from local(async) storage
+  async getMessages() {
+    let messages = [];
+    try {
+      messages = (await AsyncStorage.getItem("messages")) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // Send message
+  onSend = (messages = []) => {
+    this.setState(
+      (previousState) => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }),
+      () => {
+        this.addMessage();
+        this.saveMessages();
+      }
+    );
+  };
+
+  // Save messages locally(asyncStorage)
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem(
+        "messages",
+        JSON.stringify(this.state.messages)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // Delete messages
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem("messages");
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  /*===============RENDERING================*/
 
   // Change bubble colour
   renderBubble(props) {
     {
       /* Colour options
-      '#e67e22', // carrot
-      '#2ecc71', // emerald
-      '#3498db', // peter river
-      '#8e44ad', // wisteria
-      '#e74c3c', // alizarin
-      '#1abc9c', // turquoise
-      '#2c3e50', // midnight blue
        https://coolors.co/ */
     }
     return (
@@ -76,108 +201,12 @@ export default class Chat extends Component {
     );
   }
 
-  // Set user ID, name and avatar
-  setUser = (_id, name = "anonymous") => {
-    this.setState({
-      user: {
-        _id: _id,
-        name: name,
-        avatar: "https://placeimg.com/140/140/any",
-      },
-    });
-  };
-
-  get user() {
-    return {
-      name: this.props.navigation.state.params.name,
-      _id: this.state.uid,
-      id: this.state.uid,
-    };
-  }
-
-  onCollectionUpdate = (querySnapshot) => {
-    const messages = [];
-    //go through each document
-    querySnapshot.forEach((doc) => {
-      var data = doc.data();
-      messages.push({
-        _id: data._id,
-        text: data.text,
-        createdAt: data.createdAt.toDate(),
-        user: data.user,
-        // messages: data.message,
-      });
-    });
-    this.setState({
-      messages,
-    });
-  };
-
-  //adding messages to the database and setting the state of user id
-  componentDidMount() {
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        await firebase.auth().signInAnonymously();
-      } else {
-        this.setState({
-          uid: user.uid,
-          loggedInText: "Welcome to Mad Chatter",
-        });
-      }
-      this.referenceMessageUser = firebase.firestore().collection("messages");
-
-      this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(
-        this.onCollectionUpdate
-      );
-    });
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: "Hello developer",
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: "React Native",
-            avatar: "https://placeimg.com/140/140/any",
-          },
-        },
-        {
-          _id: 2,
-          text:
-            this.props.navigation.state.params.name + " has entered the chat",
-          createdAt: new Date(),
-          system: true,
-        },
-      ],
-    });
-  }
-
-  //unmounting
-  componentWillUnmount() {
-    this.authUnsubscribe();
-    this.unsubscribeMessageUser();
-  }
-
-  //Adding messages to the database
-  addMessage() {
-    const message = this.state.messages[0];
-    this.referenceMessages.add({
-      _id: this.state.messages[0]._id,
-      text: this.state.messages[0].text || "",
-      createdAt: this.state.messages[0].createdAt,
-      user: this.state.messages[0].user,
-    });
-  }
-
-  // Send message function
-  onSend(messages = []) {
-    this.setState(
-      (previousState) => ({
-        messages: GiftedChat.append(previousState.messages, messages),
-      }),
-      () => this.addMessage()
-    );
+  // hide inputbar when offline
+  renderInputToolbar(props) {
+    if (this.state.isConnected == false) {
+    } else {
+      return <InputToolbar {...props} />;
+    }
   }
 
   render() {
@@ -202,6 +231,8 @@ export default class Chat extends Component {
     );
   }
 }
+
+/*===============STYLING================*/
 
 const styles = StyleSheet.create({
   container: {

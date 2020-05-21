@@ -38,7 +38,16 @@ export default class Chat extends Component {
       isConnected: false,
     };
 
-    firebase.initializeApp({});
+    firebase.initializeApp({
+      apiKey: "AIzaSyCjLX-69Z5JFTiRXnR5sQFShoyyXjXTOIs",
+      authDomain: "",
+      databaseURL: " ",
+      projectId: "mad-chatter-b91ae",
+      storageBucket: " ",
+      messagingSenderId: "502456412571",
+      appId: "1:502456412571:web:9750deae42e530309a993e",
+      measurementId: "G-V7010CSCDR",
+    });
     this.referenceMessages = firebase.firestore().collection("messages");
   }
 

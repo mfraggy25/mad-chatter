@@ -12,6 +12,8 @@ import {
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import NetInfo from "@react-native-community/netinfo";
+import CustomActions from "./CustomActions";
+import MapView from "react-native-maps";
 
 const firebase = require("firebase");
 require("firebase/firestore");
@@ -36,6 +38,8 @@ export default class Chat extends Component {
         avatar: "",
       },
       isConnected: false,
+      image: null,
+      location: null,
     };
 
     firebase.initializeApp({
@@ -112,6 +116,8 @@ export default class Chat extends Component {
         text: data.text || "",
         createdAt: data.createdAt.toDate(),
         user: data.user,
+        image: data.image || "",
+        location: data.location || null,
       });
     });
     this.setState({
@@ -137,6 +143,9 @@ export default class Chat extends Component {
       text: message.text || "",
       createdAt: message.createdAt,
       user: this.state.user,
+      uid: this.state.uid,
+      image: this.state.messages[0].image || "",
+      location: this.state.messages[0].location || null,
     });
   }
 
@@ -212,34 +221,84 @@ export default class Chat extends Component {
 
   // hide inputbar when offline
   renderInputToolbar(props) {
-    if (this.state.isConnected == false) {
+    if (this.state.isConnected) {
     } else {
       return <InputToolbar {...props} />;
     }
   }
 
+  // Custom actions to take picture/upload image/share location
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
+  // Show map location
+  renderCustomView(props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  }
+
   render() {
     return (
       <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          backgroundColor: this.props.navigation.state.params.color,
-        }}
+        style={[
+          styles.container,
+          { backgroundColor: this.props.navigation.state.params.color },
+        ]}
       >
-        <Text> Hello {this.props.navigation.state.params.name}</Text>
         <GiftedChat
+          scrollToBottom
+          user={this.state.user}
           messages={this.state.messages}
+          renderCustomView={this.renderCustomView}
+          renderActions={this.renderCustomActions}
           onSend={(messages) => this.onSend(messages)}
           renderBubble={this.renderBubble.bind(this)}
-          user={this.state.user}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
         />
-        {/* Keyboard spacer for android only. */}
         {Platform.OS === "android" ? <KeyboardSpacer topSpacing={-50} /> : null}
       </View>
     );
   }
 }
+
+//   render() {
+//     return (
+//       <View
+//         style={{
+//           flex: 1,
+//           justifyContent: "center",
+//           backgroundColor: this.props.navigation.state.params.color,
+//         }}
+//       >
+//         <Text> Hello {this.props.navigation.state.params.name}</Text>
+//         <GiftedChat
+//           messages={this.state.messages}
+//           onSend={(messages) => this.onSend(messages)}
+//           renderBubble={this.renderBubble.bind}
+//           user={this.state.user}
+//           renderActions={this.renderCustomActions}
+//           renderCustomView={this.renderCustomView}
+//         />
+//         {/* Keyboard spacer for android only. */}
+//         {Platform.OS === "android" ? <KeyboardSpacer topSpacing={-50} /> : null}
+//       </View>
+//     );
+//   }
+// }
 
 /*===============STYLING================*/
 

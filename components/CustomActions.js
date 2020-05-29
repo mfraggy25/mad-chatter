@@ -121,6 +121,7 @@ export default class CustomActions extends React.Component {
             console.log("user wants to get his location");
             this.getLocation();
             return;
+          default:
         }
       }
     );

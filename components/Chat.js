@@ -275,31 +275,6 @@ export default class Chat extends Component {
   }
 }
 
-//   render() {
-//     return (
-//       <View
-//         style={{
-//           flex: 1,
-//           justifyContent: "center",
-//           backgroundColor: this.props.navigation.state.params.color,
-//         }}
-//       >
-//         <Text> Hello {this.props.navigation.state.params.name}</Text>
-//         <GiftedChat
-//           messages={this.state.messages}
-//           onSend={(messages) => this.onSend(messages)}
-//           renderBubble={this.renderBubble.bind}
-//           user={this.state.user}
-//           renderActions={this.renderCustomActions}
-//           renderCustomView={this.renderCustomView}
-//         />
-//         {/* Keyboard spacer for android only. */}
-//         {Platform.OS === "android" ? <KeyboardSpacer topSpacing={-50} /> : null}
-//       </View>
-//     );
-//   }
-// }
-
 /*===============STYLING================*/
 
 const styles = StyleSheet.create({

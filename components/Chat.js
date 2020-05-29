@@ -264,7 +264,7 @@ export default class Chat extends Component {
           user={this.state.user}
           messages={this.state.messages}
           renderCustomView={this.renderCustomView}
-          renderActions={this.renderCustomActions}
+          renderActions={(props) => this.renderCustomActions(props)}
           onSend={(messages) => this.onSend(messages)}
           renderBubble={this.renderBubble.bind(this)}
           renderInputToolbar={this.renderInputToolbar.bind(this)}

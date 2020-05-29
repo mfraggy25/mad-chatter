@@ -17,7 +17,7 @@
     "expo-image-picker": "~8.1.0",
     "expo-location": "~8.1.0",
     "expo-permissions": "~8.1.0",
-    "firebase": "^7.14.5",
+    "firebase": "^7.14.6",
     "nodemailer": "^0.7.1",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",

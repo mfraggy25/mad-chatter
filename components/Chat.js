@@ -47,7 +47,7 @@ export default class Chat extends Component {
       authDomain: "",
       databaseURL: " ",
       projectId: "mad-chatter-b91ae",
-      storageBucket: " ",
+      storageBucket: "mad-chatter-b91ae.appspot.com",
       messagingSenderId: "502456412571",
       appId: "1:502456412571:web:9750deae42e530309a993e",
       measurementId: "G-V7010CSCDR",

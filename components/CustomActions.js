@@ -1,11 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { GiftedChat, InputToolbar } from "react-native-gifted-chat";
 
 import firebase from "firebase";
-
-import { MapView } from "react-native-maps";
 
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
@@ -18,35 +15,42 @@ export default class CustomActions extends React.Component {
 
   //Choose photo from library
   pickImage = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    try {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
-    if (status === "granted") {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      }).catch((error) => console.log(error));
+      if (status === "granted") {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        }).catch((error) => console.log(error));
 
-      if (!result.cancelled) {
-        const imageUrl = await this.uploadImage(result.uri);
-        this.props.onSend({ image: imageUrl });
+        if (!result.cancelled) {
+          const imageUrl = await this.uploadImage(result.uri);
+          this.props.onSend({ image: imageUrl });
+        }
       }
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
   //Take photo
   takePhoto = async () => {
-    const { status } = await Permissions.askAsync(
-      Permissions.CAMERA_ROLL,
-      Permissions.CAMERA
-    );
-    if (status === "granted") {
-      let result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      }).catch((error) => console.log(error));
-
-      if (!result.cancelled) {
-        const imageUrlLink = await this.uploadImage(result.uri);
-        this.props.onSend({ image: imageUrlLink });
+    try {
+      const { status } = await Permissions.askAsync(
+        Permissions.CAMERA_ROLL,
+        Permissions.CAMERA
+      );
+      if (status === "granted") {
+        let result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        }).catch((error) => console.log(error));
+        if (!result.cancelled) {
+          const imageUrl = await this.uploadImage(result.uri);
+          this.props.onSend({ image: imageUrl });
+        }
       }
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
@@ -80,16 +84,18 @@ export default class CustomActions extends React.Component {
   getLocation = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === "granted") {
-      let result = await Location.getCurrentPositionAsync({});
-      const longitude = JSON.stringify(result.coords.longitude);
-      const latitude = JSON.stringify(result.coords.latitude);
-      if (result) {
-        this.props.onSend({
-          location: {
-            longitude: result.coords.longitude,
-            latitude: result.coords.latitude,
-          },
-        });
+      try {
+        const result = await Location.getCurrentPositionAsync({});
+        if (result) {
+          this.props.onSend({
+            location: {
+              longitude: result.coords.longitude,
+              latitude: result.coords.latitude,
+            },
+          });
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };
@@ -110,17 +116,14 @@ export default class CustomActions extends React.Component {
       async (buttonIndex) => {
         switch (buttonIndex) {
           case 0:
-            console.log("user wants to pick an image");
-            this.pickImage();
-            return;
+            //console.log('select image from library');
+            return this.pickImage();
           case 1:
-            console.log("user wants to take a photo");
-            this.takePhoto();
-            return;
+            //console.log('take photo');
+            return this.takePhoto();
           case 2:
-            console.log("user wants to get his location");
-            this.getLocation();
-            return;
+            //console.log('get location');
+            return this.getLocation();
           default:
         }
       }

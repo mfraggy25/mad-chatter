@@ -20,6 +20,7 @@ import _ from "lodash";
 const firebase = require("firebase");
 require("firebase/firestore");
 
+//Remove warning message "setting a timer"
 YellowBox.ignoreWarnings(["Setting a timer"]);
 const _console = _.clone(console);
 console.warn = (message) => {
@@ -82,17 +83,13 @@ export default class Chat extends Component {
               }
             }
             this.setState({
+              uid: user.uid,
+              loggedInText: "Hello there",
               isConnected: true,
               user: {
                 _id: user.uid,
                 name: this.props.navigation.state.params.name,
-                avatar: "https://placeimg.com/140/140/any",
               },
-              uid: user.uid,
-              loggedInText:
-                this.props.navigation.state.params.name +
-                " has entered the chat",
-              messages: [],
             });
             //console.log(user);
             this.unsubscribe = this.referenceMessages
@@ -100,6 +97,7 @@ export default class Chat extends Component {
               .onSnapshot(this.onCollectionUpdate);
           });
       } else {
+        this.setUser(user.uid, this.props.navigation.state.params.name);
         this.setState({
           isConnected: false,
         });
@@ -120,7 +118,7 @@ export default class Chat extends Component {
     // Go through each document
     querySnapshot.forEach((doc) => {
       // Get queryDocumentSnapshot's data
-      var data = doc.data();
+      const data = doc.data();
       messages.push({
         _id: data._id,
         text: data.text || "",
@@ -135,13 +133,19 @@ export default class Chat extends Component {
     });
   };
 
-  get user() {
-    return {
-      name: this.props.navigation.state.params.name,
-      _id: this.state.uid,
-      id: this.state.uid,
-    };
-  }
+  setUser = (
+    _id,
+    name = "Guest User",
+    avatar = "https://placeimg.com/140/140/any"
+  ) => {
+    this.setState({
+      user: {
+        _id: _id,
+        name: name,
+        avatar: avatar,
+      },
+    });
+  };
 
   /*===============MESSAGE OPTIONS================*/
 
@@ -271,6 +275,7 @@ export default class Chat extends Component {
       >
         <GiftedChat
           scrollToBottom
+          renderAvatarOnTop
           user={this.state.user}
           messages={this.state.messages}
           renderCustomView={this.renderCustomView}

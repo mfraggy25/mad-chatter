@@ -8,15 +8,25 @@ import {
   ImageBackground,
   Platform,
   AsyncStorage,
+  YellowBox,
 } from "react-native";
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import NetInfo from "@react-native-community/netinfo";
 import CustomActions from "./CustomActions";
 import MapView from "react-native-maps";
+import _ from "lodash";
 
 const firebase = require("firebase");
 require("firebase/firestore");
+
+YellowBox.ignoreWarnings(["Setting a timer"]);
+const _console = _.clone(console);
+console.warn = (message) => {
+  if (message.indexOf("Setting a timer") <= -1) {
+    _console.warn(message);
+  }
+};
 
 export default class Chat extends Component {
   //pulling in information from Start.js name/color
@@ -143,9 +153,9 @@ export default class Chat extends Component {
       text: message.text || "",
       createdAt: message.createdAt,
       user: this.state.user,
-      uid: this.state.uid,
       image: this.state.messages[0].image || "",
       location: this.state.messages[0].location || null,
+      sent: true,
     });
   }
 

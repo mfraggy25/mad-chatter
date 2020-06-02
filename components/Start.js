@@ -1,5 +1,5 @@
+/* eslint-disable react/jsx-filename-extension */
 import React, { Component } from "react";
-import KeyboardSpacer from "react-native-keyboard-spacer";
 import {
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ export default class Start extends React.Component {
     super(props);
     this.state = { name: "", color: "" }; // creates state for"name" and "color"
   }
+
   render() {
     return (
       <ImageBackground
@@ -28,7 +29,7 @@ export default class Start extends React.Component {
             onChangeText={(name) => this.setState({ name })}
             value={this.state.name}
             placeholder="Enter Name"
-            placeholderTextColor={"black"}
+            placeholderTextColor="black"
           />
           <Text style={styles.title}>Choose your background colour:</Text>
           <View style={styles.colorBackground}>
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     textAlign: "center",
   },
-  /*========Background Color Options========*/
+  /*= =======Background Color Options======== */
   colorButton: {
     height: 50,
     width: 50,
